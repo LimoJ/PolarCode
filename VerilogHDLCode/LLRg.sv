@@ -1,22 +1,21 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
+// Company: HUST
+// Engineer: LimoJ
 // 
 // Create Date: 2019/01/18 19:28:51
 // Design Name: 
 // Module Name: LLRg
-// Project Name: 
+// Project Name: RatelessPolarCode
 // Target Devices: 
 // Tool Versions: 
 // Description: 
-// 
+//  This Moudle is for LLRg Calculation
 // Dependencies: 
-// 
-// Revision:
+//  None  
 // Revision 0.01 - File Created
 // Additional Comments:
-// combine logic 
+// 	Combine logic 
 //////////////////////////////////////////////////////////////////////////////////
 
 
