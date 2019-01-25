@@ -11,27 +11,31 @@
 // Tool Versions:vivado 2016.4 
 // Description: Polar Decoder
 // 
-// Dependencies: LLRg.sv
-// 
+// Dependencies: 
+// 	LLRg.sv
+//  LLRf.sv
+//  LLR.sv
 // Revision:
 // Revision 0.01 - File Created
-// Additional Comments:
+// Additional Comments:  
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
 
 module PolarDecoder#(
-parameter DATA_WIDTH=8
+parameter DATA_WIDTH=8,
+parameter CODE_LENGTH=1024,//the value must be the power of 2
+parameter FROZEN_BITS_LENGTH=48
 )
 (
+    input wire reset,
     input wire clk,
     input wire [DATA_WIDTH-1:0] data_in,
     input wire [DATA_WIDTH-1:0] data_out
     );
-    
-always_ff @(posedge clk)
-begin    
+localparam COUNTER_WIDTH = $clog2(CODE_LENGTH);	
 
-end
+
+
     
 endmodule

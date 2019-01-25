@@ -7,7 +7,7 @@
 // Design Name: 
 // Module Name: LLR
 // Project Name: RatelessPolarCode
-// Target Devices: 
+// Target Devices:ZC706 
 // Tool Versions: vivado 2016.4
 // Description: 
 // 	This Moudle is for LLR Calculation
@@ -37,19 +37,19 @@ wire llrg_data_out;
     LLRf#(
 	.DATA_WIDTH(DATA_WIDTH)
 	) LLRf_inst(
-	.b(b)
-	.a(a)
+	.b(b),
+	.a(a),
 	.llrf_data_out(llrf_data_out)
-	)
+	);
 
     LLRg#(
 	.DATA_WIDTH(DATA_WIDTH)
 	) LLRg_inst(
-	.b(b)
-	.a(a)
-	.us(us)
+	.b(b),
+	.a(a),
+	.us(us),
 	.llrg_data_out(llrg_data_out)
-	)
+	);
 	
 assign llr_data_out= (sel==1)?llrf_data_out:llrg_data_out;
    

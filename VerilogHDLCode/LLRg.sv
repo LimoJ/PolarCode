@@ -7,7 +7,7 @@
 // Design Name: 
 // Module Name: LLRg
 // Project Name: RatelessPolarCode
-// Target Devices: 
+// Target Devices:ZC706 
 // Tool Versions: 
 // Description: 
 //  This Moudle is for LLRg Calculation
