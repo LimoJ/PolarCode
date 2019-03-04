@@ -31,8 +31,8 @@ parameter DATA_WIDTH=8
     output reg signed [DATA_WIDTH-1:0]llr_data_out
     );
 
-wire llrf_data_out;
-wire llrg_data_out;
+wire [DATA_WIDTH-1:0]llrf_data_out;
+wire [DATA_WIDTH-1:0]llrg_data_out;
 
     LLRf#(
 	.DATA_WIDTH(DATA_WIDTH)
