@@ -23,7 +23,6 @@
 module LLRf#(
 parameter DATA_WIDTH=8
 )(
-    input  wire clk,
     input  wire signed [DATA_WIDTH-1:0] b,
     input  wire signed [DATA_WIDTH-1:0] a,
     output reg signed [DATA_WIDTH-1:0] llrf_data_out
@@ -34,7 +33,7 @@ reg  significant_bits;
    
 always_comb
 begin
-     signed_bit=a[DATA_WIDTH-1]&b[DATA_WIDTH-1];
+     signed_bit=a[DATA_WIDTH-1]^b[DATA_WIDTH-1];
 end    
 
 always_comb
