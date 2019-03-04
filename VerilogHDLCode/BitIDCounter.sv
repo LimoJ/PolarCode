@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module LLRCalIDCounter#(
+module BitIDCounter#(
 parameter COUNTER_WIDTH=10
 )
 (
@@ -29,29 +29,29 @@ parameter COUNTER_WIDTH=10
     input wire [COUNTER_WIDTH-1:0] load_value,
     input wire load,
     input wire start_or_stop,
-    output reg [COUNTER_WIDTH-1:0] llr_cal_count_value
+    output reg [COUNTER_WIDTH-1:0] id_count_value
     );
     
-reg [COUNTER_WIDTH-1:0] llr_operation_id_counter={COUNTER_WIDTH{1'b0}};
+reg [COUNTER_WIDTH-1:0] operation_id_counter;
          
 always_ff @(posedge clk or negedge reset)
 begin    
     if(reset)
     begin
-        llr_operation_id_counter<=load_value;
+       operation_id_counter<=0;
     end
     else if(load)
-        llr_operation_id_counter<=load_value;
+       operation_id_counter<=load_value;
     else if(start_or_stop)
     begin
-        llr_operation_id_counter<=llr_operation_id_counter+1'b1;
+        operation_id_counter<=operation_id_counter+1'b1;
     end
     else
     begin
-    llr_operation_id_counter<=llr_operation_id_counter;
+        operation_id_counter<=operation_id_counter;
     end
 end
     
-assign count_value=llr_operation_id_counter;
+assign id_count_value=operation_id_counter;
 
 endmodule
