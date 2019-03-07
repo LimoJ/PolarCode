@@ -3,7 +3,10 @@ function [re] = LogarithmLikelihoodRatio(y,u_est,i,N,noiseVar)
 %    
 if(rem(i,2)==1)
     if(N==1)
-        re=2*y/(noiseVar);  
+        %re=2*y/(noiseVar);
+        %let init llr equal to y to make aggreement with verilog,because
+        %the input data of verilog module is init llr (normalized and multply 127 for 8 bit width)
+         re=y; 
     else
         u_xor=xor(u_est(1:2:i-1),u_est(2:2:i-1));
         u_even=u_est(2:2:i-1);
