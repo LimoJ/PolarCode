@@ -66,7 +66,7 @@ parameter READ_REG_ENABLE=0
       .WRITE_WIDTH(DATA_WIDTH),    // Valid values are 1-72 (37-72 only valid when BRAM_SIZE="36Kb")
       .READ_WIDTH(DATA_WIDTH),     // Valid values are 1-72 (37-72 only valid when BRAM_SIZE="36Kb")
       .DO_REG(0),         // Optional output register (0 or 1)
-      .INIT_FILE ("NONE"),
+      .INIT_FILE ("M:\\CodesAndHardware\\Github\\PolarCode\\Data\\Uac.mif"),
       .SIM_COLLISION_CHECK ("ALL"), // Collision check enable "ALL", "WARNING_ONLY", 
                                     //   "GENERATE_X_ONLY" or "NONE" 
       .SRVAL(72'h000000000000000000), // Set/Reset value for port output

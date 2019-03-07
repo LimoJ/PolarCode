@@ -33,7 +33,8 @@ parameter READ_REG_ENABLE=0
         input wire  [ADDR_WIDTH-1:0] ADDRB, // Input  address, width defined by write port depth
         input wire RESET,       // 1-bit input reset      
         input wire CLK,   // 1-bit input read clock
-        input wire ENABLE,     // 1-bit input read port enable
+        input wire ENABLEA,     // 1-bit input read port enable
+        input wire ENABLEB,     // 1-bit input read port enable
         input wire WRITE_ENABLE      // 1-bit input write port enable
     );
     
@@ -239,8 +240,8 @@ parameter READ_REG_ENABLE=0
           .CLKB(CLK),     // 1-bit input port-B clock
           .DIA(DI),       // Input port-A data, width defined by WRITE_WIDTH_A parameter
           .DIB(0),       // Input port-B data, width defined by WRITE_WIDTH_B parameter
-          .ENA(ENABLE),       // 1-bit input port-A enable
-          .ENB(ENABLE),       // 1-bit input port-B enable
+          .ENA(ENABLEA),       // 1-bit input port-A enable
+          .ENB(ENABLEB),       // 1-bit input port-B enable
           .REGCEA(READ_REG_ENABLE), // 1-bit input port-A output register enable
           .REGCEB(READ_REG_ENABLE), // 1-bit input port-B output register enable
           .RSTA(RESET),     // 1-bit input port-A reset

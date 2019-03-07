@@ -32,43 +32,43 @@ always_comb
 begin
     if((counter_value&10'b10_0000_0000)==10'b00_0000_0000)
     begin
-        current_layer_num=4'd10;
+        current_layer_num=4'd9;
     end
-    else if((counter_value&10'b11_0000_0000)==&10'b10_0000_0000)
+    else if((counter_value&10'b11_0000_0000)==10'b10_0000_0000)
     begin
-        current_layer_num=4'd9; 
+        current_layer_num=4'd8; 
     end
-    else if((counter_value&10'b11_1000_0000)==&10'b11_0000_0000)
+    else if((counter_value&10'b11_1000_0000)==10'b11_0000_0000)
     begin
-        current_layer_num=4'd8;  
+        current_layer_num=4'd7;  
     end
-    else if((counter_value&10'b11_1100_0000)==&10'b11_1000_0000)
+    else if((counter_value&10'b11_1100_0000)==10'b11_1000_0000)
     begin
-        current_layer_num=4'd7;     
+        current_layer_num=4'd6;     
     end
-    else if((counter_value&10'b11_1110_0000)==&10'b11_1100_0000)
+    else if((counter_value&10'b11_1110_0000)==10'b11_1100_0000)
     begin
-        current_layer_num=4'd6;
+        current_layer_num=4'd5;
     end
-    else if((counter_value&10'b11_1111_0000)==&10'b11_1110_0000)
+    else if((counter_value&10'b11_1111_0000)==10'b11_1110_0000)
     begin
-        current_layer_num=4'd5;     
+        current_layer_num=4'd4;     
     end
-    else if((counter_value&10'b11_1111_1000)==&10'b11_1111_0000)
+    else if((counter_value&10'b11_1111_1000)==10'b11_1111_0000)
     begin
-        current_layer_num=4'd4;    
+        current_layer_num=4'd3;    
     end
-    else if((counter_value&10'b11_1111_1100)==&10'b11_1111_1000)
+    else if((counter_value&10'b11_1111_1100)==10'b11_1111_1000)
     begin
-        current_layer_num=4'd3;     
+        current_layer_num=4'd2;     
     end
-    else if((counter_value&10'b11_1111_1110)==&10'b11_1111_1100)
+    else if((counter_value&10'b11_1111_1110)==10'b11_1111_1100)
     begin
-        current_layer_num=4'd2;
+        current_layer_num=4'd1;
     end
-    else if((counter_value)==&10'b11_1111_1110)
+    else if((counter_value)==10'b11_1111_1110)
     begin
-        current_layer_num=4'd1; 
+        current_layer_num=4'd0; 
     end
     else
     begin

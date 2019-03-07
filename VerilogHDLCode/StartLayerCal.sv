@@ -37,54 +37,54 @@ begin
         start_layer_num=4'd0;
         start_layer_init_addr=11'b111_1111_1110;
     end
-    else if((id_counter_value&10'b00_0000_0011)==&10'b00_0000_0010)
+    else if((id_counter_value&10'b00_0000_0011)==10'b00_0000_0010)
     begin
         start_layer_num=4'd1;
         start_layer_init_addr=11'b111_1111_1100;    
     end
-    else if((id_counter_value&10'b00_0000_0111)==&10'b00_0000_0100)
+    else if((id_counter_value&10'b00_0000_0111)==10'b00_0000_0100)
     begin
         start_layer_num=4'd2;
         start_layer_init_addr=11'b111_1111_1000;      
     end
-    else if((id_counter_value&10'b00_0000_1111)==&10'b00_0000_1000)
+    else if((id_counter_value&10'b00_0000_1111)==10'b00_0000_1000)
     begin
         start_layer_num=4'd3;
         start_layer_init_addr=11'b111_1111_0000;       
     end
-    else if((id_counter_value&10'b00_0001_1111)==&10'b00_0001_0000)
+    else if((id_counter_value&10'b00_0001_1111)==10'b00_0001_0000)
     begin
         start_layer_num=4'd4;
         start_layer_init_addr=11'b111_1110_0000;   
     end
-    else if((id_counter_value&10'b00_0011_1111)==&10'b00_0010_0000)
+    else if((id_counter_value&10'b00_0011_1111)==10'b00_0010_0000)
     begin
         start_layer_num=4'd5;
         start_layer_init_addr=11'b111_1100_0000;      
     end
-    else if((id_counter_value&10'b00_0111_1111)==&10'b00_0100_0000)
+    else if((id_counter_value&10'b00_0111_1111)==10'b00_0100_0000)
     begin
         start_layer_num=4'd6;
         start_layer_init_addr=11'b111_1000_0000;      
     end
-    else if((id_counter_value&10'b00_1111_1111)==&10'b00_1000_0000)
+    else if((id_counter_value&10'b00_1111_1111)==10'b00_1000_0000)
     begin
         start_layer_num=4'd7;
         start_layer_init_addr=11'b111_0000_0000;       
     end
-    else if((id_counter_value&10'b01_1111_1111)==&10'b01_0000_0000)
+    else if((id_counter_value&10'b01_1111_1111)==10'b01_0000_0000)
     begin
         start_layer_num=4'd8;
         start_layer_init_addr=11'b110_0000_0000;  
     end
-    else if((id_counter_value)==&10'b10_0000_0000)
+    else if((id_counter_value)==10'b10_0000_0000)
     begin
         start_layer_num=4'd9;
         start_layer_init_addr=11'b100_0000_0000;  
     end
     else
     begin
-        start_layer_num=4'd10;
+        start_layer_num=4'd9;
         start_layer_init_addr=11'b000_0000_0000;      
     end            
 end

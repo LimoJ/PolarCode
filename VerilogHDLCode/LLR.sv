@@ -51,6 +51,6 @@ wire [DATA_WIDTH-1:0]llrg_data_out;
 	.llrg_data_out(llrg_data_out)
 	);
 	
-assign llr_data_out= (sel==1)?llrf_data_out:llrg_data_out;
+assign llr_data_out= (sel==0)?llrf_data_out:llrg_data_out;
    
 endmodule

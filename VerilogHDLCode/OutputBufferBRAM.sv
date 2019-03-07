@@ -231,7 +231,7 @@ parameter READ_REG_ENABLE=0
       .RDEN(READ_ENABLE),     // 1-bit input read port enable
       .REGCE(READ_REG_ENABLE),   // 1-bit input read output register enable
       .RST(RESET),       // 1-bit input reset      
-      .WE(1),         // Input write enable, width defined by write port depth
+      .WE(WRITE_ENABLE),         // Input write enable, width defined by write port depth
       .WRADDR(WRADDR), // Input write address, width defined by write port depth
       .WRCLK(CLK),   // 1-bit input write clock
       .WREN(WRITE_ENABLE)      // 1-bit input write port enable

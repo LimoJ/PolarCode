@@ -27,7 +27,8 @@ parameter DATA_WIDTH=8,
 parameter STATE_WIDTH=10, 
 parameter IDLE_STATE=10'd1,
 parameter INPUT_STATE=10'd2,
-parameter INNER_COUNTER_WIDTH=10 
+parameter INNER_COUNTER_WIDTH=10, 
+parameter RESET_WAIT_TIME=20 // for ram  reset
 )(
     input wire clk,
     input wire reset,
@@ -38,18 +39,37 @@ parameter INNER_COUNTER_WIDTH=10
     output reg saxis_tready,
     output reg [ADDR_WIDTH-1:0] addr_to_llr_init_bram,
     output reg [DATA_WIDTH-1:0] data_to_llr_init_bram,
-    output reg enable_to_llr_init_bram,
+    output reg enablea_to_llr_init_bram,
+    output reg enableb_to_llr_init_bram,
     output reg write_enable_to_llr_init_bram,
     output reg error
     );
 
-//axis tready    
-assign saxis_tready=(state==INPUT_STATE)||(state==INPUT_STATE);
+
 // data to llr init bram
 assign data_to_llr_init_bram=saxis_tdata;
 //inner counter //for addr generator   
 reg [INNER_COUNTER_WIDTH-1:0] inner_counter;
+reg [INNER_COUNTER_WIDTH-1:0] inner_counter1;
+//axis tready    
+assign saxis_tready=(state==INPUT_STATE)&&(inner_counter1>RESET_WAIT_TIME);
 
+always_ff@(posedge clk or posedge reset)
+begin
+    if(reset)
+    begin
+        inner_counter1<=0;
+    end
+    else if((state==INPUT_STATE)&&inner_counter1<=RESET_WAIT_TIME)
+    begin
+        inner_counter1<=inner_counter1+1'b1;
+    end
+    else
+    begin
+        inner_counter1<=inner_counter1;
+    end
+ end   
+    
 always_ff@(posedge clk or posedge reset)
 begin
     if(reset)
@@ -72,9 +92,12 @@ begin
         end
     end    
 end
+
 //addr to llr init bram
 assign addr_to_llr_init_bram=inner_counter;
-assign enable_to_llr_init_bram=(state==INPUT_STATE);
+assign enablea_to_llr_init_bram=(state==INPUT_STATE);
+assign enableb_to_llr_init_bram=0;
+
 assign write_enable_to_llr_init_bram=saxis_tready&saxis_tvalid;
 //err
 assign error=saxis_tlast&&(inner_counter!=CODE_LENGTH-1);

@@ -22,14 +22,14 @@
 
 module LLRCalculator#
 (
-    parameter STATE_WIDTH=9,
+    parameter STATE_WIDTH=10,
     parameter INPUT_STATE=8'd2,
     parameter LLR_READ_STATE=8'd4,
     parameter LLR_CAL_AND_STORE_STATE=8'd8,
     parameter DATA_WIDTH=8,
     parameter ADDR_WIDTH=10,
     parameter INNER_COUNTER_WIDTH=10,
-    parameter COUNTER_MAX_VALUE=1023,
+    parameter ID_COUNTER_MAX_VALUE=1023,
     parameter ID_COUNTER_WIDTH=10
 )
 (
@@ -52,10 +52,12 @@ module LLRCalculator#
     output reg [ADDR_WIDTH-1:0]addr_a_to_llr_mid_bram,
     output reg [ADDR_WIDTH-1:0]addr_b_to_llr_mid_bram,
     output reg [ADDR_WIDTH-1:0]addr_to_partial_sum_bram,
-    output reg [DATA_WIDTH-1:0]data_to_llr_mid_bram,
+    output reg signed [DATA_WIDTH-1:0]data_to_llr_mid_bram,
     output reg data_to_out_buffer_bram,
-    output reg enable_to_llr_init_bram,
-    output reg enable_to_llr_mid_bram,
+    output reg enablea_to_llr_init_bram,
+    output reg enableb_to_llr_init_bram,
+    output reg enablea_to_llr_mid_bram,
+    output reg enableb_to_llr_mid_bram,
     output reg enable_to_partial_sum_bram,
     output reg write_enable_to_llr_mid_bram,
     output reg write_enable_to_output_buffer_bram,
@@ -102,7 +104,7 @@ begin
         end
         else
         begin
-            inner_counter<=start_layer_init_addr[INNER_COUNTER_WIDTH:1];
+            inner_counter<=start_layer_init_addr[INNER_COUNTER_WIDTH-1:0];
         end
     end
 end
@@ -119,19 +121,23 @@ wire [LAYER_OUT_WIDTH-1:0] current_layer_num;
        
 //ram select signal
 reg sel_init_ram;
-assign sel_init_ram=inner_counter<RAM_SELECT_THRESHOLD?1:0;
+assign sel_init_ram=((state==LLR_READ_STATE)||(state==LLR_CAL_AND_STORE_STATE))&&inner_counter<RAM_SELECT_THRESHOLD?1:0;
 
 //enable signals 
-assign enable_to_llr_init_bram=((state==LLR_READ_STATE)||(state==LLR_CAL_AND_STORE_STATE))&&(sel_init_ram==1)?1:0;
-assign enable_to_llr_mid_bram=((state==LLR_READ_STATE)||(state==LLR_CAL_AND_STORE_STATE))&&(sel_init_ram==0)?1:0;
-assign enable_to_partial_sum_bram=((state==LLR_READ_STATE)||(state==LLR_CAL_AND_STORE_STATE))&&(sel_init_ram==0)?1:0;
+assign enablea_to_llr_init_bram=((state==LLR_READ_STATE))&&(sel_init_ram==1)?1:0;
+assign enableb_to_llr_init_bram=((state==LLR_READ_STATE))&&(sel_init_ram==1)?1:0;
+
+assign enablea_to_llr_mid_bram=((state==LLR_READ_STATE&&(sel_init_ram==0))||(state==LLR_CAL_AND_STORE_STATE))?1:0;
+assign enableb_to_llr_mid_bram=((state==LLR_READ_STATE))&&(sel_init_ram==0)?1:0;
+
+assign enable_to_partial_sum_bram=((state==LLR_READ_STATE)||(state==LLR_CAL_AND_STORE_STATE))?1:0;
 //write enable signal 
-assign write_enable_to_llr_mid_bram=(state==LLR_CAL_AND_STORE_STATE)&&(sel_init_ram==0)?1:0;
+assign write_enable_to_llr_mid_bram=(state==LLR_CAL_AND_STORE_STATE)?1:0;
 
 //addrs
-assign addr_a_to_llr_init_bram={inner_counter[ADDR_WIDTH-2:0],1'b0};
-assign addr_b_to_llr_init_bram={inner_counter[ADDR_WIDTH-2:0],1'b1};
-assign addr_b_to_llr_mid_bram={inner_counter[ADDR_WIDTH-2:0],1'b1};
+assign addr_a_to_llr_init_bram=enablea_to_llr_init_bram?{inner_counter[ADDR_WIDTH-2:0],1'b0}:0;
+assign addr_b_to_llr_init_bram=enableb_to_llr_init_bram?{inner_counter[ADDR_WIDTH-2:0],1'b1}:0;
+assign addr_b_to_llr_mid_bram=enableb_to_llr_mid_bram?{inner_counter[ADDR_WIDTH-2:0],1'b1}:0;
 assign addr_to_partial_sum_bram=inner_counter;
 
 always_comb
@@ -156,8 +162,8 @@ assign f_g_select=id_counter_value[current_layer_num];
 
 reg [DATA_WIDTH-1:0] data_b;
 reg [DATA_WIDTH-1:0] data_a;
-assign data_b=(sel_init_ram==1)?data_a_from_llr_init_bram:data_a_from_llr_mid_bram;
-assign data_a=(sel_init_ram==1)?data_b_from_llr_init_bram:data_b_from_llr_mid_bram;
+assign data_a=(sel_init_ram==1)?data_a_from_llr_init_bram:data_a_from_llr_mid_bram;
+assign data_b=(sel_init_ram==1)?data_b_from_llr_init_bram:data_b_from_llr_mid_bram;
 //LLR Inst
 LLR#(
 .DATA_WIDTH(DATA_WIDTH)
@@ -168,8 +174,29 @@ LLR#(
 	.sel(f_g_select),//1b
     .llr_data_out(data_to_llr_mid_bram)
     );
-assign llr_sigle_bit_fin=(current_layer_num==0);
-assign llr_cal_fin=llr_sigle_bit_fin&((&id_counter_value)==1);
+assign llr_sigle_bit_fin=(current_layer_num==0)&&(state==LLR_CAL_AND_STORE_STATE);
+
+
+integer  file_out_llr;
+    initial 
+    begin                                              
+        file_out_llr = $fopen("M:\\CodesAndHardware\\Github\\PolarCode\\Data\\LLR_out.txt","w");
+        if(!file_out_llr)
+        begin
+            $display("could not open file result_data0!");
+            $finish;
+        end
+    end
+    
+
+                 
+always @(posedge clk)
+    begin   
+            if(llr_sigle_bit_fin)
+            $fdisplay(file_out_llr,"%d",data_to_llr_mid_bram);       
+    end 
+    
+assign llr_cal_fin=llr_sigle_bit_fin&&((id_counter_value)==ID_COUNTER_MAX_VALUE)&&(state==LLR_CAL_AND_STORE_STATE);
 //decision and store to output buffer
 assign write_enable_to_output_buffer_bram=(current_layer_num==0&&state==LLR_CAL_AND_STORE_STATE);
 assign data_to_out_buffer_bram=write_enable_to_output_buffer_bram?(data_from_frozen_bit_indication_bram==1?0:data_to_llr_mid_bram[DATA_WIDTH-1]):0;

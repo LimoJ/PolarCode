@@ -81,14 +81,14 @@ PolarDecoderControllerFSM#(
     .partial_sum_sigle_bit_cal_fin(partial_sum_sigle_bit_cal_fin)
     );
 wire start_or_stop;
-assign start_or_stop=(state==UPDATE_ID_STATE);
+assign start_or_stop=(partial_sum_sigle_bit_cal_fin);
 BitIDCounter#(
 .COUNTER_WIDTH(BIT_ID_COUNTER_WIDTH)
 ) BitIDCounterInst
 (
     .reset(reset),
     .clk(clk),
-    .load_value(0),
+    .load_value(10'b0),
     .load(s_axi_tlast),
     .start_or_stop(start_or_stop),
     .id_count_value(id_counter_value)
@@ -99,7 +99,8 @@ BitIDCounter#(
 
 wire [ADDR_WIDTH-1:0]addr_from_ipc_to_llr_init_bram;
 wire [LLR_DATA_WIDTH-1:0]data_from_ipc_to_llr_init_bram;
-wire enable_from_ipc_to_llr_init_bram;
+wire enablea_from_ipc_to_llr_init_bram;
+wire enableb_from_ipc_to_llr_init_bram;
 wire write_enable_to_llr_init_bram;
 
 
@@ -118,7 +119,8 @@ InputController#(
     .saxis_tready(s_axi_tready),
     .addr_to_llr_init_bram(addr_from_ipc_to_llr_init_bram),
     .data_to_llr_init_bram(data_from_ipc_to_llr_init_bram),
-    .enable_to_llr_init_bram(enable_from_ipc_to_llr_init_bram),
+    .enablea_to_llr_init_bram(enablea_from_ipc_to_llr_init_bram),
+    .enableb_to_llr_init_bram(enableb_from_ipc_to_llr_init_bram),
     .write_enable_to_llr_init_bram(write_enable_to_llr_init_bram),
     .error(error)
     );
@@ -137,12 +139,14 @@ wire [ADDR_WIDTH-1:0]addr_b_to_llr_mid_bram;
 wire [ADDR_WIDTH-1:0]addr_from_llrc_to_partial_sum_bram;
 wire [LLR_DATA_WIDTH-1:0]data_to_llr_mid_bram;
 wire data_to_out_buffer_bram;
-wire enable_from_llrc_to_llr_init_bram;
-wire enable_to_llr_mid_bram;
+wire enablea_from_llrc_to_llr_init_bram;
+wire enableb_from_llrc_to_llr_init_bram;
+wire enablea_to_llr_mid_bram;
+wire enableb_to_llr_mid_bram;
 wire enable_from_llrc_to_partial_sum_bram;
 wire write_enable_to_llr_mid_bram;
 wire write_enable_to_output_buffer_bram;
-wire data_new_bit;
+wire new_bit_data;
    
 LLRCalculator#
         (
@@ -150,7 +154,7 @@ LLRCalculator#
             .DATA_WIDTH(LLR_DATA_WIDTH),
             .ADDR_WIDTH(ADDR_WIDTH),
             .INNER_COUNTER_WIDTH(10),
-            .COUNTER_MAX_VALUE(10'd1022),
+            .ID_COUNTER_MAX_VALUE(10'd1023),
             .ID_COUNTER_WIDTH(10)
         )LLRCalculatorInst
         (
@@ -175,8 +179,10 @@ LLRCalculator#
             .addr_to_partial_sum_bram(addr_from_llrc_to_partial_sum_bram),
             .data_to_llr_mid_bram(data_to_llr_mid_bram),
             .data_to_out_buffer_bram(data_to_out_buffer_bram),
-            .enable_to_llr_init_bram(enable_from_llrc_to_llr_init_bram),
-            .enable_to_llr_mid_bram(enable_to_llr_mid_bram),
+            .enablea_to_llr_init_bram(enablea_from_llrc_to_llr_init_bram),
+            .enableb_to_llr_init_bram(enableb_from_llrc_to_llr_init_bram),
+            .enablea_to_llr_mid_bram(enablea_to_llr_mid_bram),
+            .enableb_to_llr_mid_bram(enableb_to_llr_mid_bram),
             .enable_to_partial_sum_bram(enable_from_llrc_to_partial_sum_bram),
             .write_enable_to_llr_mid_bram(write_enable_to_llr_mid_bram),
             .write_enable_to_output_buffer_bram(write_enable_to_output_buffer_bram),
@@ -191,7 +197,8 @@ wire [ADDR_WIDTH-1:0]addr_a_from_psc_to_partial_sum_bram;
 wire [ADDR_WIDTH-1:0]addr_b_to_partial_sum_bram;                                  
 wire data_a_to_partial_sum_bram;                                  
 wire data_b_to_partial_sum_bram;                                  
-wire enable_from_psc_to_partial_sum_bram;                                  
+wire enablea_from_psc_to_partial_sum_bram;
+wire enableb_from_psc_to_partial_sum_bram;                                      
 wire write_enable_a_to_partial_sum_bram;                          
 wire write_enable_b_to_partial_sum_bram;                          
 
@@ -215,7 +222,8 @@ PartialSumCalculator#(
     .addr_b_to_partial_sum_bram(addr_b_to_partial_sum_bram),
     .data_a_to_partial_sum_bram(data_a_to_partial_sum_bram),
     .data_b_to_partial_sum_bram(data_b_to_partial_sum_bram),
-    .enable_to_partial_sum_bram(enable_from_psc_to_partial_sum_bram),
+    .enablea_to_partial_sum_bram(enablea_from_psc_to_partial_sum_bram),
+    .enableb_to_partial_sum_bram(enableb_from_psc_to_partial_sum_bram),
     .write_enable_a_to_partial_sum_bram(write_enable_a_to_partial_sum_bram),
     .write_enable_b_to_partial_sum_bram(write_enable_b_to_partial_sum_bram),
     .partial_sum_sigle_bit_cal_fin(partial_sum_sigle_bit_cal_fin)
@@ -230,7 +238,7 @@ OutputController#(
 .CODE_LENGTH(CODE_LENGTH),
 .ADDR_WIDTH(ADDR_WIDTH),
 .STATE_WIDTH(STATE_WIDTH), 
-.INNER_COUNTER_WIDTH(10) 
+.INNER_COUNTER_WIDTH(11) 
 )OutputControllerInst(
     .clk(clk),
     .reset(reset),
@@ -253,7 +261,7 @@ FrozenBitIndicationBRAM#(
            )FrozenBitIndicationBRAMInst
            (
                .DO(data_from_frozen_bit_indication_bram),       // Output read data port, width defined by DATA_WIDTH parameter
-               .DI(0),        // Input write data port, width defined by DATA_WIDTH parameter
+               .DI(1'b0),        // Input write data port, width defined by DATA_WIDTH parameter
                .RDADDR({4'd0,id_counter_value}), // Input  address, width defined by read port depth
                .WRADDR(0), // Input  address, width defined by write port depth
                .RESET(reset),       // 1-bit input reset      
@@ -263,10 +271,11 @@ FrozenBitIndicationBRAM#(
                );
 
 wire [ADDR_WIDTH-1:0]addr_to_llr_init_bram_combine;
-wire enable_to_llr_init_bram_combine;
-
+wire enablea_to_llr_init_bram_combine;
+wire enableb_to_llr_init_bram_combine;
 assign addr_to_llr_init_bram_combine=(state==INPUT_STATE)?addr_from_ipc_to_llr_init_bram:addr_a_from_llrc_to_llr_init_bram;
-assign enable_to_llr_init_bram_combine=enable_from_llrc_to_llr_init_bram|enable_from_ipc_to_llr_init_bram;
+assign enablea_to_llr_init_bram_combine=enablea_from_llrc_to_llr_init_bram|enablea_from_ipc_to_llr_init_bram;
+assign enableb_to_llr_init_bram_combine=enableb_from_llrc_to_llr_init_bram|enableb_from_ipc_to_llr_init_bram;
 
  LLRInitBRAM#(
     .DATA_WIDTH(LLR_DATA_WIDTH),
@@ -281,7 +290,8 @@ assign enable_to_llr_init_bram_combine=enable_from_llrc_to_llr_init_bram|enable_
         .ADDRB({1'b0,addr_b_to_llr_init_bram}), // Input write address, width defined by write port depth
         .RESET(reset),       // 1-bit input reset      
         .CLK(clk),   // 1-bit input read clock
-        .ENABLE(enable_to_llr_init_bram_combine),     // 1-bit input read port enable
+        .ENABLEA(enablea_to_llr_init_bram_combine),     // 1-bit input read port enable
+        .ENABLEB(enableb_to_llr_init_bram_combine),     // 1-bit input read port enable
         .WRITE_ENABLE(write_enable_to_llr_init_bram)      // 1-bit input write port enable
     );
     
@@ -298,13 +308,20 @@ assign enable_to_llr_init_bram_combine=enable_from_llrc_to_llr_init_bram|enable_
            .ADDRB({1'b0,addr_b_to_llr_mid_bram}), // Input write address, width defined by write port depth
            .RESET(reset),       // 1-bit input reset      
            .CLK(clk),   // 1-bit input read clock
-           .ENABLE(enable_to_llr_mid_bram),     // 1-bit input read port enable
+           .ENABLEA(enablea_to_llr_mid_bram),     // 1-bit input read port enable
+           .ENABLEB(enableb_to_llr_mid_bram),     // 1-bit input read port enable
            .WRITE_ENABLE(write_enable_to_llr_mid_bram)      // 1-bit input write port enable
        );
 
-wire [ADDR_WIDTH-1:0]addr_a_to_partial_sum_bram_combine=(state==PARTIAL_SUM_NEW_BIT_STORE_STATE)||(state==PARTIAL_SUM_READ_STATE)||(state==PARTIAL_SUM_CAL_AND_STORE_STATE)?addr_a_from_psc_to_partial_sum_bram:addr_from_llrc_to_partial_sum_bram;
-wire enable_to_partial_sum_bram_combine=enable_from_llrc_to_partial_sum_bram|enable_from_psc_to_partial_sum_bram;
-assign data_from_partial_sum_bram=data_a_from_partial_bram;                                    
+wire [ADDR_WIDTH-1:0]addr_a_to_partial_sum_bram_combine;
+wire enablea_to_partial_sum_bram_combine;
+wire enableb_to_partial_sum_bram_combine;
+
+assign addr_a_to_partial_sum_bram_combine=(state==PARTIAL_SUM_NEW_BIT_STORE_STATE)||(state==PARTIAL_SUM_READ_STATE)||(state==PARTIAL_SUM_CAL_AND_STORE_STATE)?addr_a_from_psc_to_partial_sum_bram:addr_from_llrc_to_partial_sum_bram;
+assign enablea_to_partial_sum_bram_combine=enable_from_llrc_to_partial_sum_bram|enablea_from_psc_to_partial_sum_bram;
+assign enableb_to_partial_sum_bram_combine=enableb_from_psc_to_partial_sum_bram;
+assign data_from_partial_sum_bram=data_a_from_partial_bram;  
+                                  
 PartialSumBRAM#(
        .DATA_WIDTH(1),
        .ADDR_WIDTH(14),
@@ -319,7 +336,8 @@ PartialSumBRAM#(
                .ADDRB({4'b0,addr_b_to_partial_sum_bram}), // Input  address, width defined by write port depth
                .RESET(reset),       // 1-bit input reset      
                .CLK(clk),   // 1-bit input read clock
-               .ENABLE(enable_to_partial_sum_bram_combine),      // 1-bit input read port enable
+               .ENABLEA(enablea_to_partial_sum_bram_combine),      // 1-bit input read port enable
+               .ENABLEB(enableb_to_partial_sum_bram_combine),      // 1-bit input read port enable
                .WRITE_ENABLE_A(write_enable_a_to_partial_sum_bram), // 1-bit input write port enable
                .WRITE_ENABLE_B(write_enable_b_to_partial_sum_bram) // 1-bit input write port enable
            );

@@ -148,7 +148,7 @@ module PolarDecoderControllerFSM#
                                 end
                     OUTPUT_WAIT_STATE:
                                 begin
-                                    if(maxi_tready&maxi_tvalid)
+                                    if(maxi_tready)
                                     begin
                                         next_state=OUTPUT_STATE;
                                     end

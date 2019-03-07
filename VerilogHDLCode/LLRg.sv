@@ -33,7 +33,14 @@ reg signed [DATA_WIDTH-1:0]concat_a;
 reg signed [DATA_WIDTH:0]shifted_sum;
 always_comb
 begin
-    concat_a={us^a[DATA_WIDTH-1],a[DATA_WIDTH-2:0]};
+    if(us==0)
+    begin
+        concat_a=a;
+    end
+    else
+    begin
+        concat_a=-a;
+    end
 end
 
 always_comb
@@ -48,7 +55,7 @@ end
 
 always_comb
 begin
-    llrg_data_out=shifted_sum[DATA_WIDTH-1:0];
+    llrg_data_out=sum>0&&sum[0]==1?shifted_sum[DATA_WIDTH-1:0]+1:shifted_sum[DATA_WIDTH-1:0];
 end
 
 

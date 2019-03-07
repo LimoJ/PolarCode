@@ -42,7 +42,8 @@ parameter INNER_COUNTER_MAX_VALUE=10'd1022
     output reg [ADDR_WIDTH-1:0]addr_b_to_partial_sum_bram,
     output reg data_a_to_partial_sum_bram,
     output reg data_b_to_partial_sum_bram,
-    output reg enable_to_partial_sum_bram,
+    output reg enablea_to_partial_sum_bram,
+    output reg enableb_to_partial_sum_bram,
     output reg write_enable_a_to_partial_sum_bram,
     output reg write_enable_b_to_partial_sum_bram,
     output reg partial_sum_sigle_bit_cal_fin
@@ -50,7 +51,7 @@ parameter INNER_COUNTER_MAX_VALUE=10'd1022
 
 
 //inner counter 
-localparam RAM_SELECT_THRESHOLD=10'd512;
+localparam STOP_THRESHOLD=10'd512;
 reg [INNER_COUNTER_WIDTH-1:0] inner_counter;
 
 
@@ -88,13 +89,13 @@ begin
     begin
         addr_a_to_partial_sum_bram={inner_counter[ADDR_WIDTH-2:0],1'b0};
     end
-    else if(state==PARTIAL_SUM_READ_STATE)
+    else if(state==PARTIAL_SUM_CAL_AND_STORE_STATE)
     begin
         addr_a_to_partial_sum_bram={inner_counter[ADDR_WIDTH-2:0],1'b0};
     end
     else
     begin
-        addr_a_to_partial_sum_bram=INNER_COUNTER_MAX_VALUE;
+        addr_a_to_partial_sum_bram=0;
     end
 end
 
@@ -102,19 +103,19 @@ always_comb
 begin
     if(state==PARTIAL_SUM_NEW_BIT_STORE_STATE)
     begin
-        addr_b_to_partial_sum_bram=INNER_COUNTER_MAX_VALUE;
+        addr_b_to_partial_sum_bram=0;
     end
     else if(state==PARTIAL_SUM_READ_STATE)
     begin
         addr_b_to_partial_sum_bram=inner_counter;
     end
-    else if(state==PARTIAL_SUM_READ_STATE)
+    else if(state==PARTIAL_SUM_CAL_AND_STORE_STATE)
     begin
         addr_b_to_partial_sum_bram={inner_counter[ADDR_WIDTH-2:0],1'b1};
     end
     else
     begin
-        addr_b_to_partial_sum_bram=INNER_COUNTER_MAX_VALUE;
+        addr_b_to_partial_sum_bram=0;
     end
 end
 
@@ -131,6 +132,16 @@ wire [LAYER_OUT_WIDTH-1:0] current_layer_num;
        .current_layer_num(current_layer_num)
        );
        
+wire [LAYER_OUT_WIDTH-1:0] next_counter_current_layer_num;  
+ CurrentLayerCal#(
+       .COUNTER_WIDTH(INNER_COUNTER_WIDTH),
+       .LAYER_OUT_WIDTH(LAYER_OUT_WIDTH)
+)NextCounterCurrentLayerCalInst(
+       .counter_value(inner_counter-1),
+       .current_layer_num(next_counter_current_layer_num)
+       );
+       
+              
 //partial sum
 reg g_valid;
 reg f_g_select;
@@ -149,19 +160,30 @@ PartialSum PartialSumInst(
 assign data_a_to_partial_sum_bram=(state==PARTIAL_SUM_NEW_BIT_STORE_STATE)?new_bit_data:f;
 assign data_b_to_partial_sum_bram=g;
 //enable and data enable
-assign enable_to_partial_sum_bram=(state==PARTIAL_SUM_NEW_BIT_STORE_STATE||(state==PARTIAL_SUM_READ_STATE))||(state==PARTIAL_SUM_NEW_BIT_STORE_STATE);
-assign write_enable_a_to_partial_sum_bram=(state==PARTIAL_SUM_NEW_BIT_STORE_STATE||(state==PARTIAL_SUM_NEW_BIT_STORE_STATE));
-assign write_enable_b_to_partial_sum_bram=((state==PARTIAL_SUM_NEW_BIT_STORE_STATE))&&(f_g_select==1'b1);
+assign enablea_to_partial_sum_bram=(state==PARTIAL_SUM_NEW_BIT_STORE_STATE||(state==PARTIAL_SUM_READ_STATE))||(state==PARTIAL_SUM_CAL_AND_STORE_STATE);
+assign enableb_to_partial_sum_bram=(state==PARTIAL_SUM_READ_STATE)||((state==PARTIAL_SUM_CAL_AND_STORE_STATE)&g_valid==1'b1);
+
+assign write_enable_a_to_partial_sum_bram=(state==PARTIAL_SUM_NEW_BIT_STORE_STATE||(state==PARTIAL_SUM_CAL_AND_STORE_STATE));
+assign write_enable_b_to_partial_sum_bram=((state==PARTIAL_SUM_CAL_AND_STORE_STATE))&&(g_valid==1'b1);
 //partial sum sigle bit cal fin
 always_comb
 begin
-    if(current_layer_num==1)
+    if(reset)
     begin
         partial_sum_sigle_bit_cal_fin=0;
     end
+    else if(id_counter_value[0]==0&&(state==PARTIAL_SUM_CAL_AND_STORE_STATE))
+    begin
+        partial_sum_sigle_bit_cal_fin=1'b1;
+    end
     else
     begin
-        partial_sum_sigle_bit_cal_fin=id_counter_value[current_layer_num-1]==1'b0;
+        partial_sum_sigle_bit_cal_fin=(state==PARTIAL_SUM_CAL_AND_STORE_STATE)
+                                       &&(
+                                            (id_counter_value[current_layer_num]==1'b0&&current_layer_num!=next_counter_current_layer_num)
+                                            ||
+                                            (next_counter_current_layer_num==9)
+                                         );
     end
 end
              
