@@ -22,7 +22,17 @@
 
 module PolarDecoderControllerFSM#
 (
-    parameter STATE_WIDTH=10
+    parameter STATE_WIDTH=10,
+    parameter IDLE_STATE=10'd1,
+    parameter INPUT_STATE=10'd2,
+    parameter LLR_READ_STATE=10'd4,
+    parameter LLR_CAL_AND_STORE_STATE=10'd8,
+    parameter PARTIAL_SUM_NEW_BIT_STORE_STATE=10'd16,
+    parameter PARTIAL_SUM_READ_STATE=10'd32,
+    parameter PARTIAL_SUM_CAL_AND_STORE_STATE=10'd64,
+    parameter UPDATE_ID_STATE=10'd128,
+    parameter OUTPUT_WAIT_STATE=10'd256,
+    parameter OUTPUT_STATE=10'd512
 )
 (
     input wire reset,
@@ -41,16 +51,7 @@ module PolarDecoderControllerFSM#
     );
             
     // begin of FSM 
-    localparam IDLE_STATE=10'd1;
-    localparam INPUT_STATE=10'd2;
-    localparam LLR_READ_STATE=10'd4;
-    localparam LLR_CAL_AND_STORE_STATE=10'd8;
-    localparam PARTIAL_SUM_NEW_BIT_STORE_STATE=10'd16;
-    localparam PARTIAL_SUM_READ_STATE=10'd32;
-    localparam PARTIAL_SUM_CAL_AND_STORE_STATE=10'd64;
-    localparam UPDATE_ID_STATE=10'd128;
-    localparam OUTPUT_WAIT_STATE=10'd256;
-    localparam OUTPUT_STATE=10'd512;
+
     
     reg [STATE_WIDTH-1:0] current_state;
     reg [STATE_WIDTH-1:0] next_state;
@@ -73,21 +74,14 @@ module PolarDecoderControllerFSM#
     begin
         if(reset)
         begin
-            next_state=INPUT_STATE; 
+            next_state=IDLE_STATE; 
         end
         else
         begin
             case(current_state)
                     IDLE_STATE:
                                 begin
-                                    if(saxi_tready&saxi_tvalid)
-                                    begin
-                                        next_state=INPUT_STATE;    
-                                    end
-                                    else
-                                    begin
-                                         next_state=IDLE_STATE; 
-                                    end 
+                                      next_state=INPUT_STATE;    
                                 end
                     INPUT_STATE:
                                 begin
