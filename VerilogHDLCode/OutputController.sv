@@ -21,7 +21,7 @@
 
 
 module OutputController#(
-parameter CODE_LENGTH=1024,
+parameter OUTPUT_LENGTH=1024,
 parameter ADDR_WIDTH=10,
 parameter DATA_WIDTH=1,
 parameter STATE_WIDTH=8, 
@@ -32,13 +32,13 @@ parameter INNER_COUNTER_WIDTH=11
     input wire clk,
     input wire reset,
     input wire [STATE_WIDTH-1:0]state,
-    input wire [DATA_WIDTH-1:0] data_from_output_buffer_bram,
+    input wire [DATA_WIDTH-1:0] data_from_bram,
     input wire maxis_tready,
     output reg [DATA_WIDTH-1:0] maxis_tdata,
     output reg maxis_tlast,
     output reg maxis_tvalid,
-    output reg [ADDR_WIDTH-1:0] addr_to_output_buffer_bram,
-    output reg read_enable_to_output_buffer_bram
+    output reg [ADDR_WIDTH-1:0] addr_to_bram,
+    output reg read_enable_to_bram
     );
 
 // maxis_tvalid    
@@ -46,7 +46,7 @@ reg tmp_maxis_tlast;
 reg tmp_maxis_tvalid;
 
 // data to output_buffer bram
-assign maxis_tdata=data_from_output_buffer_bram;
+assign maxis_tdata=data_from_bram;
 //inner counter 
 reg [INNER_COUNTER_WIDTH-1:0] inner_counter;
 
@@ -73,8 +73,8 @@ begin
     end    
 end
 
-assign tmp_maxis_tvalid=((state==OUTPUT_STATE))&&(inner_counter<=CODE_LENGTH-1);
-assign tmp_maxis_tlast=(inner_counter==CODE_LENGTH-1);
+assign tmp_maxis_tvalid=((state==OUTPUT_STATE))&&(inner_counter<=OUTPUT_LENGTH-1);
+assign tmp_maxis_tlast=(inner_counter==OUTPUT_LENGTH-1);
 
 always_ff@(posedge clk)
 begin
@@ -86,9 +86,9 @@ begin
 maxis_tlast=tmp_maxis_tlast;
 end
 //addr to output_buffer_bram
-assign addr_to_output_buffer_bram=inner_counter;
+assign addr_to_bram=inner_counter;
 //enable to output_buffer_bram
-assign read_enable_to_output_buffer_bram=(state==OUTPUT_STATE)&&(tmp_maxis_tvalid&maxis_tready);
+assign read_enable_to_bram=(state==OUTPUT_STATE)&&(tmp_maxis_tvalid&maxis_tready);
 
 endmodule
 

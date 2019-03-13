@@ -21,11 +21,10 @@
 
 
 module InputController#(
-parameter CODE_LENGTH=1024,
+parameter INPUT_LENGTH=1024,
 parameter ADDR_WIDTH=10,
 parameter DATA_WIDTH=8,
 parameter STATE_WIDTH=10, 
-parameter IDLE_STATE=10'd1,
 parameter INPUT_STATE=10'd2,
 parameter INNER_COUNTER_WIDTH=10, 
 parameter RESET_WAIT_TIME=20 // for ram  reset
@@ -37,17 +36,17 @@ parameter RESET_WAIT_TIME=20 // for ram  reset
     input wire saxis_tlast,
     input wire [DATA_WIDTH-1:0] saxis_tdata,
     output reg saxis_tready,
-    output reg [ADDR_WIDTH-1:0] addr_to_llr_init_bram,
-    output reg [DATA_WIDTH-1:0] data_to_llr_init_bram,
-    output reg enablea_to_llr_init_bram,
-    output reg enableb_to_llr_init_bram,
-    output reg write_enable_to_llr_init_bram,
+    output reg [ADDR_WIDTH-1:0] addr_to_bram,
+    output reg [DATA_WIDTH-1:0] data_to_bram,
+    output reg enablea_to_bram,
+    output reg enableb_to_bram,
+    output reg write_enable_to_bram,
     output reg error
     );
 
 
 // data to llr init bram
-assign data_to_llr_init_bram=saxis_tdata;
+assign data_to_bram=saxis_tdata;
 //inner counter //for addr generator   
 reg [INNER_COUNTER_WIDTH-1:0] inner_counter;
 reg [INNER_COUNTER_WIDTH-1:0] inner_counter1;
@@ -93,12 +92,12 @@ begin
     end    
 end
 
-//addr to llr init bram
-assign addr_to_llr_init_bram=inner_counter;
-assign enablea_to_llr_init_bram=(state==INPUT_STATE);
-assign enableb_to_llr_init_bram=0;
+//addr to bram
+assign addr_to_bram=inner_counter;
+assign enablea_to_bram=(state==INPUT_STATE);
+assign enableb_to_bram=0;
 
-assign write_enable_to_llr_init_bram=saxis_tready&saxis_tvalid;
+assign write_enable_to_bram=saxis_tready&saxis_tvalid;
 //err
-assign error=saxis_tlast&&(inner_counter!=CODE_LENGTH-1);
+assign error=saxis_tlast&&(inner_counter!=INPUT_LENGTH-1);
 endmodule
