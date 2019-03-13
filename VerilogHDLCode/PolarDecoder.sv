@@ -62,8 +62,19 @@ wire llr_sigle_bit_cal_fin;
 wire partial_sum_sigle_bit_cal_fin;
 wire [BIT_ID_COUNTER_WIDTH-1:0] id_counter_value;
 
+
 PolarDecoderControllerFSM#(
-    .STATE_WIDTH(STATE_WIDTH)
+    .STATE_WIDTH(STATE_WIDTH),
+    .IDLE_STATE(IDLE_STATE),                    
+    .INPUT_STATE(INPUT_STATE),                    
+    .LLR_READ_STATE(LLR_READ_STATE),                  
+    .LLR_CAL_AND_STORE_STATE(LLR_CAL_AND_STORE_STATE),        
+    .PARTIAL_SUM_NEW_BIT_STORE_STATE(PARTIAL_SUM_NEW_BIT_STORE_STATE),
+    .PARTIAL_SUM_READ_STATE(PARTIAL_SUM_READ_STATE),         
+    .PARTIAL_SUM_CAL_AND_STORE_STATE(PARTIAL_SUM_CAL_AND_STORE_STATE),
+    .UPDATE_ID_STATE(UPDATE_ID_STATE),               
+    .OUTPUT_WAIT_STATE(OUTPUT_WAIT_STATE),             
+    .OUTPUT_STATE(OUTPUT_STATE)                   
 ) PolarDecoderControllerFSMInst
 (
     .reset(reset),
@@ -108,6 +119,7 @@ InputController#(
 .ADDR_WIDTH(10),
 .DATA_WIDTH(LLR_DATA_WIDTH),
 .STATE_WIDTH(STATE_WIDTH), 
+.INPUT_STATE(INPUT_STATE),    
 .INNER_COUNTER_WIDTH(10) 
 )InputControllerInst(
     .clk(clk),
@@ -117,11 +129,11 @@ InputController#(
     .saxis_tlast(s_axi_tlast),
     .saxis_tdata(s_axi_tdata),
     .saxis_tready(s_axi_tready),
-    .addr_to_llr_init_bram(addr_from_ipc_to_llr_init_bram),
-    .data_to_llr_init_bram(data_from_ipc_to_llr_init_bram),
-    .enablea_to_llr_init_bram(enablea_from_ipc_to_llr_init_bram),
-    .enableb_to_llr_init_bram(enableb_from_ipc_to_llr_init_bram),
-    .write_enable_to_llr_init_bram(write_enable_to_llr_init_bram),
+    .addr_to_bram(addr_from_ipc_to_llr_init_bram),
+    .data_to_bram(data_from_ipc_to_llr_init_bram),
+    .enablea_to_bram(enablea_from_ipc_to_llr_init_bram),
+    .enableb_to_bram(enableb_from_ipc_to_llr_init_bram),
+    .write_enable_to_bram(write_enable_to_llr_init_bram),
     .error(error)
     );
     
@@ -154,6 +166,8 @@ LLRCalculator#
             .DATA_WIDTH(LLR_DATA_WIDTH),
             .ADDR_WIDTH(ADDR_WIDTH),
             .INNER_COUNTER_WIDTH(10),
+            .LLR_READ_STATE(LLR_READ_STATE),                  
+            .LLR_CAL_AND_STORE_STATE(LLR_CAL_AND_STORE_STATE),  
             .ID_COUNTER_MAX_VALUE(10'd1023),
             .ID_COUNTER_WIDTH(10)
         )LLRCalculatorInst
@@ -207,6 +221,9 @@ PartialSumCalculator#(
 .STATE_WIDTH(STATE_WIDTH),
 .ADDR_WIDTH(10),
 .ID_COUNTER_WIDTH(BIT_ID_COUNTER_WIDTH),
+.PARTIAL_SUM_NEW_BIT_STORE_STATE(PARTIAL_SUM_NEW_BIT_STORE_STATE),
+.PARTIAL_SUM_READ_STATE(PARTIAL_SUM_READ_STATE),         
+.PARTIAL_SUM_CAL_AND_STORE_STATE(PARTIAL_SUM_CAL_AND_STORE_STATE),
 .INNER_COUNTER_WIDTH(10),
 .INNER_COUNTER_MAX_VALUE(10'd1022)
 )PartialSumCalculatorInst
@@ -235,21 +252,22 @@ wire [ADDR_WIDTH-1:0]addr_to_output_buffer_bram;
 wire read_enable_to_output_buffer_bram;
     
 OutputController#(
-.CODE_LENGTH(CODE_LENGTH),
+.OUTPUT_LENGTH(CODE_LENGTH),
 .ADDR_WIDTH(ADDR_WIDTH),
 .STATE_WIDTH(STATE_WIDTH), 
+.DATA_WIDTH(1),
 .INNER_COUNTER_WIDTH(11) 
 )OutputControllerInst(
     .clk(clk),
     .reset(reset),
     .state(state),
-    .data_from_output_buffer_bram(data_from_output_buffer_bram),
+    .data_from_bram(data_from_output_buffer_bram),
     .maxis_tready(m_axi_tready),
     .maxis_tdata(m_axi_tdata),
     .maxis_tlast(m_axi_tlast),
     .maxis_tvalid(m_axi_tvalid),
-    .addr_to_output_buffer_bram(addr_to_output_buffer_bram),
-    .read_enable_to_output_buffer_bram(read_enable_to_output_buffer_bram)
+    .addr_to_bram(addr_to_output_buffer_bram),
+    .read_enable_to_bram(read_enable_to_output_buffer_bram)
     );
     
 //brams 
